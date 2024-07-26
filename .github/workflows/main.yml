@@ -1,0 +1,33 @@
+name: Build
+ 
+on: [push]
+ 
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3.5.1
+     
+    - name: Setup MSBuild path
+      uses: microsoft/setup-msbuild@v1
+       
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v1.2.0
+     
+    - name: Restore NuGet Packages
+      run: nuget restore AudioSharp.sln
+ 
+    - name: Build Project
+      run: msbuild AudioSharp.sln /p:Configuration=Release
+        
+    - name: Create Installer
+      uses: joncloud/makensis-action@v4
+      with: 
+        script-file: setup.nsi
+
+    - name: Upload Build Files
+      uses: actions/upload-artifact@v3.1.2
+      with:
+        name: files
+        path: Release
